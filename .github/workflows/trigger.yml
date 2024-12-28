@@ -1,19 +1,27 @@
-name: Trigger PHP Script
+name: Ping URL with Headless Browser
 
 on:
   schedule:
-    # Schedule at 12:00 PM, 4:00 PM, and 10:00 PM IST
-    - cron: "30 6 * * *"  # 12:00 PM IST (6:30 AM UTC)
-    - cron: "30 10 * * *" # 4:00 PM IST (10:30 AM UTC)
-    - cron: "30 16 * * *" # 10:00 PM IST (4:30 PM UTC)
+    # Run at 10:00 AM, 1:00 PM, 4:00 PM, 7:00 PM, and 10:00 PM IST
+    - cron: "30 4 * * *"   # 10:00 AM IST (4:30 AM UTC)
+    - cron: "30 7 * * *"   # 1:00 PM IST (7:30 AM UTC)
+    - cron: "30 10 * * *"  # 4:00 PM IST (10:30 AM UTC)
+    - cron: "30 13 * * *"  # 7:00 PM IST (1:30 PM UTC)
+    - cron: "30 16 * * *"  # 10:00 PM IST (4:30 PM UTC)
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  trigger_script:
+  ping_url:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger scraper.php
-        run: |
-          curl -X GET "http://cgvacancy.freesite.online/scraper.php" \
-          -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Ping URL
+        run: node ping.js
