@@ -15,5 +15,5 @@ jobs:
     steps:
       - name: Trigger scraper.php
         run: |
-          curl -X GET "https://cgvacancy.freesite.online/scraper.php" \
+          curl -X GET "http://cgvacancy.freesite.online/scraper.php" \
           -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
