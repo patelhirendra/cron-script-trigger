@@ -1,56 +1,33 @@
-name: Trigger PHP Script with Puppeteer
+name: Trigger PHP Script
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
-  workflow_dispatch: # Allows manual trigger of the workflow
+    # Run at 12:00 PM, 4:00 PM, and 10:00 PM IST
+    - cron: "30 6 * * *"  # 12:00 PM IST (6:30 AM UTC)
+    - cron: "30 10 * * *" # 4:00 PM IST (10:30 AM UTC)
+    - cron: "30 16 * * *" # 10:00 PM IST (4:30 PM UTC)
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  trigger_script:
+  execute_script:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/yourusername/puppeteer-image:latest  # Use your custom Docker image
 
     steps:
-      # Step 1: Setup Node.js
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      # Step 2: Install Puppeteer
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      # Step 3: Run Puppeteer Script
-      - name: Execute Puppeteer Script
+      - name: Trigger PHP Script using Puppeteer
         run: |
           node -e "
           const puppeteer = require('puppeteer');
           (async () => {
-              try {
-                  const browser = await puppeteer.launch({
-                      args: ['--no-sandbox', '--disable-setuid-sandbox']
-                  });
-                  const page = await browser.newPage();
-
-                  // Set User Agent to Chrome-like environment
-                  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
-
-                  // Navigate to the URL
-                  const response = await page.goto('https://cgvacancy.freesite.online/scraper.php', {
-                      waitUntil: 'networkidle2',
-                      timeout: 60000
-                  });
-
-                  // Check Response Status
-                  if (response.ok()) {
-                      console.log('Script executed successfully. Status:', response.status());
-                  } else {
-                      console.error('Failed to execute script. Status:', response.status());
-                  }
-
-                  await browser.close();
-              } catch (error) {
-                  console.error('Error:', error.message);
-              }
+              const browser = await puppeteer.launch({ headless: true });
+              const page = await browser.newPage();
+              await page.setUserAgent(
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+              );
+              await page.goto('https://cgvacancy.freesite.online/scraper.php', { waitUntil: 'networkidle2',
+                      timeout: 60000 });
+              console.log('PHP script triggered successfully');
+              await browser.close();
           })();
           "
