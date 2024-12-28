@@ -1,39 +1,56 @@
-name: Trigger PHP Script
+name: Trigger PHP Script with Puppeteer
 
 on:
   schedule:
     - cron: '0 * * * *' # Runs every hour
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger of the workflow
 
 jobs:
   trigger_script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Execute Puppeteer Script
+      # Step 1: Setup Node.js
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
+      # Step 2: Install Puppeteer
       - name: Install Puppeteer
-        run: |
-          npm install puppeteer
+        run: npm install puppeteer
 
-      - name: Run Script
+      # Step 3: Run Puppeteer Script
+      - name: Execute Puppeteer Script
         run: |
           node -e "
           const puppeteer = require('puppeteer');
           (async () => {
-              const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-              const page = await browser.newPage();
-              await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
-              const response = await page.goto('https://cgvacancy.freesite.online/scraper.php', {waitUntil: 'networkidle2', timeout: 60000 // 60 seconds timeout});
-              if (response.ok()) {
-                  console.log('Script executed successfully.');
-              } else {
-                  console.log('Failed to execute script. Status:', response.status());
+              try {
+                  const browser = await puppeteer.launch({
+                      args: ['--no-sandbox', '--disable-setuid-sandbox']
+                  });
+                  const page = await browser.newPage();
+
+                  // Set User Agent to Chrome-like environment
+                  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
+
+                  // Navigate to the URL
+                  const response = await page.goto('https://cgvacancy.freesite.online/scraper.php', {
+                      waitUntil: 'networkidle2',
+                      timeout: 60000
+                  });
+
+                  // Check Response Status
+                  if (response.ok()) {
+                      console.log('Script executed successfully. Status:', response.status());
+                  } else {
+                      console.error('Failed to execute script. Status:', response.status());
+                  }
+
+                  await browser.close();
+              } catch (error) {
+                  console.error('Error:', error.message);
               }
-              await browser.close();
           })();
           "
-          
