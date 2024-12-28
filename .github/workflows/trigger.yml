@@ -14,20 +14,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      # Step 2: Set up Node.js environment
+      # Step 1: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # Step 3: Install Puppeteer
+      # Step 2: Install Puppeteer
       - name: Install Puppeteer
         run: npm install puppeteer
 
-      # Step 4: Run the ping script
+      # Step 3: Ping URL using inline JavaScript
       - name: Ping URL
-        run: node ping.js
+        run: |
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+              const browser = await puppeteer.launch({ headless: true });
+              const page = await browser.newPage();
+              try {
+                  await page.goto('https://cgvacancy.freesite.online/scraper.php', { waitUntil: 'networkidle2' });
+                  console.log('Pinged URL successfully');
+              } catch (error) {
+                  console.error('Failed to ping the URL:', error);
+              } finally {
+                  await browser.close();
+              }
+          })();
+          "
