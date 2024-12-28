@@ -2,26 +2,32 @@ name: Ping URL with Headless Browser
 
 on:
   schedule:
-    # Run at 10:00 AM, 1:00 PM, 4:00 PM, 7:00 PM, and 10:00 PM IST
     - cron: "30 4 * * *"   # 10:00 AM IST (4:30 AM UTC)
     - cron: "30 7 * * *"   # 1:00 PM IST (7:30 AM UTC)
     - cron: "30 10 * * *"  # 4:00 PM IST (10:30 AM UTC)
     - cron: "30 13 * * *"  # 7:00 PM IST (1:30 PM UTC)
     - cron: "30 16 * * *"  # 10:00 PM IST (4:30 PM UTC)
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   ping_url:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the repository
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # Step 3: Install Puppeteer
       - name: Install Puppeteer
         run: npm install puppeteer
 
+      # Step 4: Run the ping script
       - name: Ping URL
         run: node ping.js
